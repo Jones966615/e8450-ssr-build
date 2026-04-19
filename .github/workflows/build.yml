@@ -35,23 +35,28 @@ jobs:
     - name: Configure
       run: |
         cd immortalwrt
-        make defconfig
-
-        # 启用目标设备
-        sed -i 's/# CONFIG_TARGET_mediatek_mt7622=y/CONFIG_TARGET_mediatek_mt7622=y/' .config
-        sed -i 's/# CONFIG_TARGET_mediatek_mt7622_DEVICE_linksys_e8450-ubi=y/CONFIG_TARGET_mediatek_mt7622_DEVICE_linksys_e8450-ubi=y/' .config
-
-        # 启用 SSR Plus
-        echo "CONFIG_PACKAGE_luci-app-ssr-plus=y" >> .config
-        echo "CONFIG_PACKAGE_shadowsocksr-libev-ssr-local=y" >> .config
-        echo "CONFIG_PACKAGE_shadowsocksr-libev-ssr-redir=y" >> .config
-        echo "CONFIG_PACKAGE_chinadns-ng=y" >> .config
-        echo "CONFIG_PACKAGE_dns2socks=y" >> .config
-        echo "CONFIG_PACKAGE_microsocks=y" >> .config
-        echo "CONFIG_PACKAGE_tcping=y" >> .config
-        echo "CONFIG_PACKAGE_iptables-mod-tproxy=y" >> .config
-        echo "CONFIG_PACKAGE_kmod-ipt-tproxy=y" >> .config
-
+        cat >> .config << 'EOF'
+        CONFIG_TARGET_mediatek=y
+        CONFIG_TARGET_mediatek_mt7622=y
+        CONFIG_TARGET_mediatek_mt7622_DEVICE_linksys_e8450-ubi=y
+    
+        # SSR核心（必须）
+        CONFIG_PACKAGE_luci-app-ssr-plus=y
+        CONFIG_PACKAGE_shadowsocksr-libev-ssr-local=y
+        CONFIG_PACKAGE_shadowsocksr-libev-ssr-redir=y
+    
+        # DNS组件（稳定）
+        CONFIG_PACKAGE_chinadns-ng=y
+    
+        # 去掉问题包（关键）
+        # CONFIG_PACKAGE_dns2socks is not set
+        # CONFIG_PACKAGE_microsocks is not set
+        # CONFIG_PACKAGE_tcping is not set
+    
+        CONFIG_PACKAGE_iptables-mod-tproxy=y
+        CONFIG_PACKAGE_kmod-ipt-tproxy=y
+        EOF
+    
         make defconfig
 
     - name: Build
